@@ -12,7 +12,7 @@ codecs.register(lambda name: codecs.lookup('utf8') if name == 'utf8mb4' else Non
 BASE_DIR = dirname(dirname(dirname(abspath(__file__))))
 
 # Application definition
-SITE_TITLE = "Puzzlehunt CMU"
+SITE_TITLE = os.getenv('SITE_TITLE', default = 'Puzzle Hunt')
 
 INSTALLED_APPS = (
     'bootstrap_admin',
@@ -118,7 +118,7 @@ MEDIA_URL = '/media/'
 
 # Shibboleth settings
 USE_SHIBBOLETH = os.getenv("DJANGO_USE_SHIBBOLETH", default="False").lower() == "true"
-SHIB_DOMAIN = os.getenv("DOMAIN", default="")
+SHIB_DOMAIN = getenv("DOMAIN", default="")
 
 SHIB_ATTRIBUTE_MAP = {
     "Shib-Identity-Provider": (True, "idp"),
@@ -158,7 +158,7 @@ LOGGING = {
 }
 
 # Email settings
-CONTACT_EMAIL = 'puzzlehunt-staff@lists.andrew.cmu.edu'
+CONTACT_EMAIL = os.getenv("CONTACT_EMAIL", default="")
 
 EMAIL_USE_TLS = True
 EMAIL_HOST = 'smtp.gmail.com'
