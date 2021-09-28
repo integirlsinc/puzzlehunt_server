@@ -10,14 +10,15 @@ from django.template import Template, RequestContext
 from django.template.loader import render_to_string
 from django.utils import timezone
 from django.utils.encoding import smart_str
-from django.db.models import F
 from django.urls import reverse_lazy, reverse
 from pathlib import Path
+from django.db.models import F, Max, Count, Subquery, OuterRef
+from django.db.models.fields import PositiveIntegerField
 import json
 import os
 import re
 
-from .models import Puzzle, Hunt, Submission, Message, Unlockable, Prepuzzle, Hint
+from .models import Puzzle, Hunt, Submission, Message, Unlockable, Prepuzzle, Hint, Solve
 from .forms import AnswerForm, HintRequestForm
 
 import logging
@@ -38,6 +39,10 @@ def protected_static(request, file_path):
     response = HttpResponse()
     if(len(path.parts) < 2):
         return HttpResponseNotFound('<h1>Page not found</h1>')
+
+    if(base == "puzzle"):
+        base = "puzzles"
+        file_path = file_path.replace("puzzle", "puzzles", 1)
 
     if(base == "puzzles" or base == "solutions"):
         puzzle_id = re.match(r'[0-9a-fA-F]+', path.parts[1])
@@ -188,25 +193,17 @@ def puzzle_view(request, puzzle_id):
     team = puzzle.hunt.team_from_user(request.user)
 
     if(team is not None):
-        request.ratelimit_key = team.team_name
-
-        is_ratelimited(request, fn=puzzle_view, key='user', rate='2/10s', method='POST',
-                       increment=True)
-    if(not puzzle.hunt.is_public):
-        is_ratelimited(request, fn=puzzle_view, key=get_ratelimit_key, rate='5/m', method='POST',
-                       increment=True)
-
-    if(getattr(request, 'limited', False)):
-        logger.info("User %s rate-limited for puzzle %s" % (str(request.user), puzzle_id))
-        return HttpResponseForbidden()
+        request.ratelimit_key = puzzle_id + team.team_name
+    else:
+        request.ratelimit_key = ""
 
     # Dealing with answer submissions, proper procedure is to create a submission
     # object and then rely on Submission.respond for automatic responses.
     if request.method == 'POST':
-        if(team is None):
-            if(puzzle.hunt.is_public):
-                team = puzzle.hunt.dummy_team
-            else:
+        if(puzzle.hunt.is_public):
+            team = puzzle.hunt.dummy_team
+        else:
+            if(team is None):
                 # If the hunt isn't public and you aren't signed in, please stop...
                 return HttpResponse('fail')
 
@@ -215,11 +212,30 @@ def puzzle_view(request, puzzle_id):
 
         if form.is_valid():
             user_answer = form.cleaned_data['answer']
-            s = Submission.objects.create(submission_text=user_answer, team=team,
-                                          puzzle=puzzle, submission_time=timezone.now())
+            s = Submission(submission_text=user_answer, team=team,
+                           puzzle=puzzle, submission_time=timezone.now())
             s.respond()
         else:
             s = None
+
+        if(puzzle.hunt.is_public):
+            limited = False
+        else:
+            if(not s.is_correct and s.response_text == "Wrong Answer."):
+                limited = is_ratelimited(request, fn=puzzle_view, key=get_ratelimit_key,
+                                         rate='3/5m', method='POST', increment=True)
+            else:
+                limited = is_ratelimited(request, fn=puzzle_view, key=get_ratelimit_key,
+                                         rate='3/5m', method='POST', increment=False)
+
+        if(limited):
+            logger.info("User %s rate-limited for puzzle %s" % (str(request.user), puzzle_id))
+            return HttpResponseForbidden()
+
+        if(s is not None):
+            s.save()
+            if(s.is_correct and not puzzle.hunt.is_public):
+                s.create_solve()
 
         # Deal with answers for public hunts
         if(puzzle.hunt.is_public):
@@ -295,8 +311,10 @@ def puzzle_view(request, puzzle_id):
             last_date = Submission.objects.latest('modified_date').modified_date.strftime(DT_FORMAT)
         except Submission.DoesNotExist:
             last_date = timezone.now().strftime(DT_FORMAT)
+        solve_count = puzzle.solved_for.exclude(playtester=True).count()
         context = {'form': form, 'submission_list': submissions, 'puzzle': puzzle,
-                   'PROTECTED_URL': settings.PROTECTED_URL, 'last_date': last_date, 'team': team}
+                   'PROTECTED_URL': settings.PROTECTED_URL, 'last_date': last_date,
+                   'team': team, 'solve_count': solve_count}
         return render(request, 'puzzle.html', context)
 
 
@@ -415,6 +433,27 @@ def chat(request):
     else:
         context['team'] = team
         return render(request, 'chat.html', context)
+
+
+@login_required
+def leaderboard(request, criteria=""):
+    curr_hunt = get_object_or_404(Hunt, is_current_hunt=True)
+    if(criteria == "cmu"):
+        teams = curr_hunt.real_teams.filter(is_local=True)
+    else:
+        teams = curr_hunt.real_teams.all()
+    teams = teams.exclude(playtester=True)
+    sq1 = Solve.objects.filter(team__pk=OuterRef('pk'),
+                               puzzle__puzzle_type=Puzzle.META_PUZZLE).order_by()
+    sq1 = sq1.values('team').annotate(c=Count('*')).values('c')
+    sq1 = Subquery(sq1, output_field=PositiveIntegerField())
+    all_teams = teams.annotate(metas=sq1, solves=Count('solved'))
+    all_teams = all_teams.annotate(last_time=Max('solve__submission__submission_time'))
+    all_teams = all_teams.order_by(F('metas').desc(nulls_last=True),
+                                   F('solves').desc(nulls_last=True),
+                                   F('last_time').asc(nulls_last=True))
+    context = {'team_data': all_teams}
+    return render(request, 'leaderboard.html', context)
 
 
 @login_required

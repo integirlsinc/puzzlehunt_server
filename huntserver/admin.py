@@ -62,6 +62,7 @@ class HuntAdminForm(forms.ModelForm):
 class HuntAdmin(admin.ModelAdmin):
     form = HuntAdminForm
     inlines = (HintUnlockPLanInline,)
+    ordering = ['-hunt_number']
     fieldsets = (
         ('Basic Info', {'fields': ('hunt_name', 'hunt_number', 'team_size', 'location',
                         ('start_date', 'display_start_date'), ('end_date', 'display_end_date'),
@@ -188,8 +189,8 @@ class PuzzleAdminForm(forms.ModelForm):
 
     class Meta:
         model = models.Puzzle
-        fields = ('hunt', 'puzzle_name', 'puzzle_number', 'puzzle_id', 'answer', 'is_meta',
-                  'doesnt_count', 'puzzle_page_type', 'puzzle_file', 'resource_file',
+        fields = ('hunt', 'puzzle_name', 'puzzle_number', 'puzzle_id', 'answer', 'puzzle_type',
+                  'puzzle_page_type', 'puzzle_file', 'resource_file',
                   'solution_file', 'extra_data', 'num_required_to_unlock', 'unlock_type',
                   'points_cost', 'points_value', 'solution_is_webpage', 'solution_resource_file')
 
@@ -202,15 +203,15 @@ class PuzzleAdmin(admin.ModelAdmin):
 
     list_filter = ('hunt',)
     search_fields = ['puzzle_id', 'puzzle_name']
-    list_display = ['combined_id', 'puzzle_name', 'hunt', 'is_meta']
+    list_display = ['combined_id', 'puzzle_name', 'hunt', 'puzzle_type']
     list_display_links = ['combined_id', 'puzzle_name']
     ordering = ['-hunt', 'puzzle_number']
     inlines = (ResponseInline,)
     radio_fields = {"unlock_type": admin.VERTICAL}
     fieldsets = (
         (None, {
-            'fields': ('hunt', 'puzzle_name', 'answer', 'puzzle_number', 'puzzle_id', 'is_meta',
-                       'doesnt_count', 'puzzle_page_type', 'puzzle_file', 'resource_file',
+            'fields': ('hunt', 'puzzle_name', 'answer', 'puzzle_number', 'puzzle_id', 'puzzle_type',
+                       'puzzle_page_type', 'puzzle_file', 'resource_file',
                        'solution_is_webpage', 'solution_file', 'solution_resource_file',
                        'extra_data', 'unlock_type')
         }),
@@ -233,7 +234,6 @@ class PuzzleAdmin(admin.ModelAdmin):
 class ResponseAdmin(admin.ModelAdmin):
     list_display = ['__str__', 'puzzle_just_name']
     search_fields = ['regex', 'text']
-    ordering = ['-puzzle']
 
     def puzzle_just_name(self, response):
         return response.puzzle.puzzle_name
@@ -269,9 +269,9 @@ class TeamAdminForm(forms.ModelForm):
 
     class Meta:
         model = models.Team
-        fields = ['team_name', 'hunt', 'location', 'join_code', 'playtester', 'playtest_start_date',
-                  'playtest_end_date', 'num_available_hints', 'num_unlock_points', 'unlockables',
-                  'num_unlock_points']
+        fields = ['team_name', 'hunt', 'location', 'join_code', 'playtester', 'is_local',
+                  'playtest_start_date', 'playtest_end_date', 'num_available_hints',
+                  'num_unlock_points', 'unlockables', 'num_unlock_points', ]
 
     def __init__(self, *args, **kwargs):
         super(TeamAdminForm, self).__init__(*args, **kwargs)
@@ -295,7 +295,7 @@ class TeamAdminForm(forms.ModelForm):
 class TeamAdmin(admin.ModelAdmin):
     form = TeamAdminForm
     search_fields = ['team_name']
-    list_display = ['short_team_name', 'location', 'hunt', 'playtester']
+    list_display = ['short_team_name', 'hunt', 'is_local', 'playtester']
     list_filter = ['hunt']
 
     def short_team_name(self, team):
