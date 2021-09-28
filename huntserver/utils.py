@@ -2,8 +2,10 @@ from django.conf import settings
 from django.db.models import F
 from django.utils import timezone
 from huey import crontab
-from huey.contrib.djhuey import db_periodic_task
+from huey.contrib.djhuey import db_periodic_task, db_task
 from django.core.cache import cache
+from django.core.mail import EmailMessage, get_connection
+import time
 
 from .models import Hunt, HintUnlockPlan
 
@@ -37,12 +39,12 @@ def parse_attributes(META):
 
 
 def check_hints(hunt):
-    num_min = (timezone.now() - hunt.start_date).seconds / 60
+    num_min = (timezone.now() - hunt.start_date).seconds // 60
     for hup in hunt.hintunlockplan_set.exclude(unlock_type=HintUnlockPlan.SOLVES_UNLOCK):
         if((hup.unlock_type == hup.TIMED_UNLOCK and
            hup.num_triggered < 1 and num_min > hup.unlock_parameter) or
            (hup.unlock_type == hup.INTERVAL_UNLOCK and
-           num_min / hup.unlock_parameter > hup.num_triggered)):
+           num_min // hup.unlock_parameter > hup.num_triggered)):
             hunt.team_set.all().update(num_available_hints=F('num_available_hints') + 1)
             hup.num_triggered = hup.num_triggered + 1
             hup.save()
@@ -91,3 +93,17 @@ def update_time_items():
             playtesters = [t for t in playtesters if t.playtest_happening]
             if(len(playtesters) > 0):
                 check_puzzles(hunt, new_points, playtesters, True)
+
+
+@db_task()
+def send_mass_email(email_list, subject, message):
+    result = ""
+    email_to_chunks = [email_list[x: x + 10] for x in range(0, len(email_list), 10)]
+    with get_connection() as conn:
+        for to_chunk in email_to_chunks:
+            email = EmailMessage(subject, message, settings.EMAIL_FROM, [], to_chunk,
+                                 connection=conn)
+            email.send()
+            result += "Emailed: " + ", ".join(to_chunk) + "\n"
+            time.sleep(1)
+    return result
