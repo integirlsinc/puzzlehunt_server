@@ -435,13 +435,18 @@ def chat(request):
         return render(request, 'chat.html', context)
 
 
-@login_required
 def leaderboard(request, criteria=""):
     curr_hunt = get_object_or_404(Hunt, is_current_hunt=True)
-    if(criteria == "cmu"):
-        teams = curr_hunt.real_teams.filter(is_local=True)
+    if(criteria == "middle_school" or (criteria == "" and team.division="middle_school")):
+        teams = curr_hunt.real_teams.filter(division="middle_school")
+        open_leaderboard = False
+    elif(criteria == "open" or (criteria == "" and team.division="open"):
+        teams = curr_hunt.real_teams.filter(division="open")
+        open_leaderboard = True
     else:
-        teams = curr_hunt.real_teams.all()
+        teams = curr_hunt.real_teams.filter(division="high_school")
+        open_leaderboard = False
+    
     teams = teams.exclude(playtester=True)
     sq1 = Solve.objects.filter(team__pk=OuterRef('pk'),
                                puzzle__puzzle_type=Puzzle.META_PUZZLE).order_by()
