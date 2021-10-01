@@ -101,7 +101,7 @@ def registration(request):
             old_division = team.division
             team.division = request.POST.get("team_division")
             team.save()
-            logger.info("User %s changed the division for team %s from %s to %s" % (str(request.user), str(team.team_name), old_affiliation, team.division))
+            logger.info("User %s changed the division for team %s from %s to %s" % (str(request.user), str(team.team_name), old_division, team.division))
             messages.success(request, "Division successfully updated")
 
     if(team is not None):
