@@ -9,7 +9,8 @@
   <p>None of the information collected here will be displayed publicly.</p>
   <div>
     {{ user_form|crispy }}
-    {{ person_form|crispy }}
+    <!-- commenting this line out is likely to break something. let's test this carefully -->
+	<!-- {{ person_form|crispy }} -->
   </div>
   <div class="submit-row">
     <input class="btn btn-default" type="submit" value="Update Info" class="default" />

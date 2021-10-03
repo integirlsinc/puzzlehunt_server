@@ -52,9 +52,9 @@ class UnlockForm(forms.Form):
 class PersonForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(PersonForm, self).__init__(*args, **kwargs)
-        # self.fields['phone'].help_text = "Optional"
-        # self.fields['allergies'].help_text = "Optional"
-        # self.fields['allergies'].label = "Allergies"
+        self.fields['phone'].help_text = "Optional"
+        self.fields['allergies'].help_text = "Optional"
+        self.fields['allergies'].label = "Allergies"
 
     class Meta:
         model = Person

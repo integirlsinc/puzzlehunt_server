@@ -13,7 +13,8 @@
     <form method="POST" action="">
       {% csrf_token %}
       {{uf|crispy}}
-      {{pf|crispy}}
+      <!-- commenting this line out is likely to break something. let's test this carefully -->
+	  <!-- {{pf|crispy}} -->
       <input class="btn btn-primary" type="submit">
     </form>
   </div>
