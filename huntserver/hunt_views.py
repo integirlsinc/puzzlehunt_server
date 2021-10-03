@@ -437,10 +437,15 @@ def chat(request):
 
 def leaderboard(request, criteria=""):
     curr_hunt = get_object_or_404(Hunt, is_current_hunt=True)
-    if(criteria == "middle_school" or (criteria == "" and team.division="middle_school")):
+    try:
+        team_division = team.division
+    except:
+        team_division = "high_school"
+    
+    if(criteria == "middle_school" or (criteria == "" and team_division="middle_school")):
         teams = curr_hunt.real_teams.filter(division="middle_school")
         open_leaderboard = False
-    elif(criteria == "open" or (criteria == "" and team.division="open"):
+    elif(criteria == "open" or (criteria == "" and team_division="open"):
         teams = curr_hunt.real_teams.filter(division="open")
         open_leaderboard = True
     else:
@@ -454,9 +459,14 @@ def leaderboard(request, criteria=""):
     sq1 = Subquery(sq1, output_field=PositiveIntegerField())
     all_teams = teams.annotate(metas=sq1, solves=Count('solved'))
     all_teams = all_teams.annotate(last_time=Max('solve__submission__submission_time'))
-    all_teams = all_teams.order_by(F('metas').desc(nulls_last=True),
-                                   F('solves').desc(nulls_last=True),
-                                   F('last_time').asc(nulls_last=True))
+    
+    # assuming this breaks nothing, just stopping the order is probably a bad idea, but to me this seems like the way least likely to break something.
+    # i don't think i care if somebody wants to go through the trouble to discover the open team rankings for this hunt. but TODO for IHOP fixes
+    if (open_leaderboard = False):
+        all_teams = all_teams.order_by(F('metas').desc(nulls_last=True),
+                                    F('solves').desc(nulls_last=True),
+                                    F('last_time').asc(nulls_last=True))
+
     context = {'team_data': all_teams}
     return render(request, 'leaderboard.html', context)
 
