@@ -20,3 +20,4 @@ debug.log
 /docker/volumes/redis_data/
 /docker/volumes/logs/
 *.env
+.venv
