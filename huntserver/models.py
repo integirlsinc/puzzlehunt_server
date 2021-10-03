@@ -470,6 +470,7 @@ class Team(models.Model):
         blank=True,
         help_text="The physical location that the team is solving at")
     division = models.CharField(
+        max_length=80,
         help_text="The division that the team is in.")
     is_local = models.BooleanField(
         default=False,
