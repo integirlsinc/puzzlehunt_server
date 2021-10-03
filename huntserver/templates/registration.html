@@ -46,7 +46,7 @@
         </form>
       </div> -->
       <div>
-        <!-- <span>
+        <span>
           <b> CMU Team: </b>
           {% if registered_team.is_local %}
             Yes
@@ -65,33 +65,7 @@
             <input name="team_is_local" value="team_is_local" type="checkbox">
           {% endif %}
           <input type="submit" value="Change">
-        </form> -->
-		
-		<span>
-		<b>Division: </b>
-		{% if registered_team.division = "middle_school" %}
-			Middle School
-		{% elif registered_team.division = "high_school" %}
-			High School
-		{% else %}
-			Open
-		{% endif %}
-		</span>
-		{% if not curr_hunt.in_reg_lockdown %}
-		<a href='#' class='edit_button'>[Change]</a>
-		<form method="Post" style="display:none;">
-			{% csrf_token %}
-			<input type="hidden" name="form_type" value="new_division">
-			<b>Division: </b>
-			<select id="division-select" class="form-control" name="team_division">
-				<option value="middle_school" {% if registered_team.division = "middle_school" %} selected {% endif %}>Middle School</option>
-				<option value="high_school" {% if registered_team.division = "high_school" %} selected {% endif %}>High School</option>
-				<option value="open" {% if registered_team.division = "open" %} selected {% endif %}>Open Division</option>
-			  </select>
-			<input type="submit" value="Change">
-		</form>
-		{% endif %}
-			
+        </form>
       </div>
       <br>
       <b> Team Members: </b>
@@ -148,18 +122,11 @@
               </select>
               {% endif %}
               <br> -->
-              <!-- <input name="team_is_local" value="team_is_local" type="checkbox">
+              <input name="team_is_local" value="team_is_local" type="checkbox">
               Check this box if at least half of the team will be composed of CMU students.
               <br>
               <small>Don't worry about getting this precisely correct. This only affects how your team shows up on the leaderboard and does not affect eligibility for prizes.</small>
-              -->
-			  Please select the division your team will be playing in:
-			  <select id="division-select" class="form-control" name="division">
-				<option value="middle_school">Middle School</option>
-				<option value="high_school">High School</option>
-				<option value="open">Open Division</option>
-			  </select>
-			  <br>
+              <br>
               <br>
               <input class="btn btn-primary" type="submit" value="Create and Join Team">
             </form>

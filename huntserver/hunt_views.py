@@ -435,23 +435,13 @@ def chat(request):
         return render(request, 'chat.html', context)
 
 
+@login_required
 def leaderboard(request, criteria=""):
     curr_hunt = get_object_or_404(Hunt, is_current_hunt=True)
-    try:
-        team_division = team.division
-    except:
-        team_division = "high_school"
-    
-    if(criteria == "middle_school" or (criteria == "" and team_division="middle_school")):
-        teams = curr_hunt.real_teams.filter(division="middle_school")
-        open_leaderboard = False
-    elif(criteria == "open" or (criteria == "" and team_division="open"):
-        teams = curr_hunt.real_teams.filter(division="open")
-        open_leaderboard = True
+    if(criteria == "cmu"):
+        teams = curr_hunt.real_teams.filter(is_local=True)
     else:
-        teams = curr_hunt.real_teams.filter(division="high_school")
-        open_leaderboard = False
-    
+        teams = curr_hunt.real_teams.all()
     teams = teams.exclude(playtester=True)
     sq1 = Solve.objects.filter(team__pk=OuterRef('pk'),
                                puzzle__puzzle_type=Puzzle.META_PUZZLE).order_by()
@@ -459,14 +449,9 @@ def leaderboard(request, criteria=""):
     sq1 = Subquery(sq1, output_field=PositiveIntegerField())
     all_teams = teams.annotate(metas=sq1, solves=Count('solved'))
     all_teams = all_teams.annotate(last_time=Max('solve__submission__submission_time'))
-    
-    # assuming this breaks nothing, just stopping the order is probably a bad idea, but to me this seems like the way least likely to break something.
-    # i don't think i care if somebody wants to go through the trouble to discover the open team rankings for this hunt. but TODO for IHOP fixes
-    if (open_leaderboard = False):
-        all_teams = all_teams.order_by(F('metas').desc(nulls_last=True),
-                                    F('solves').desc(nulls_last=True),
-                                    F('last_time').asc(nulls_last=True))
-
+    all_teams = all_teams.order_by(F('metas').desc(nulls_last=True),
+                                   F('solves').desc(nulls_last=True),
+                                   F('last_time').asc(nulls_last=True))
     context = {'team_data': all_teams}
     return render(request, 'leaderboard.html', context)
 

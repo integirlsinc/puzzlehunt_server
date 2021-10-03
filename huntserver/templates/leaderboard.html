@@ -13,16 +13,15 @@
       <h1 style="text-align: center;"> Team Leaderboard </h1>
       <br>
       <div style="text-align: center;">
-        <a href="/leaderboard/middle_school/" style="margin-right: 20px">Middle School Division</a>
-        <a href="/leaderboard/high_school/" style="margin-right: 20px">High School Division</a>
-		<a href="/leaderboard/open/" style="margin-right: 0px">Open Division</a>
+        <a href="/leaderboard/" style="margin-right: 20px">All Teams</a>
+        <a href="/leaderboard/cmu/" style="margin-right: 0px">CMU Teams</a>
       </div>
       <br>
       <table class="table table-striped table-condensed">
         <tr>
           <th>Rank</th>
           <th>Team</th>
-          <!-- <th>Meta Solves</th> -->
+          <th>Meta Solves</th>
           <th>Solves</th>
           <th>Last Solve Time</th>
         </tr>
@@ -30,7 +29,7 @@
         <tr>
           <td>{{forloop.counter}}</td>
           <td>{{team.team_name|truncatechars:30}}</td>
-          <!-- <td>{{team.metas}}</td> -->
+          <td>{{team.metas}}</td>
           <td>{{team.solves}}</td>
           <td>{{team.last_time|date:"M dS, h:i a" }}</td>
         </tr>

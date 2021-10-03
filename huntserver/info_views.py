@@ -46,7 +46,6 @@ def registration(request):
                                            # location=request.POST.get("need_room"),
                                            location="remote",
                                            is_local=(request.POST.get("team_is_local") is not None),
-                                           division = request.POST.get("division"),
                                            join_code=join_code)
                 request.user.person.teams.add(team)
                 logger.info("User %s created team %s" % (str(request.user), str(team)))
@@ -97,12 +96,6 @@ def registration(request):
                 logger.info("User %s renamed team %s to %s" %
                             (str(request.user), old_name, team.team_name))
                 messages.success(request, "Team name successfully updated")
-        elif(request.POST["form_type"] == "new_division" and team is not None):
-            old_division = team.division
-            team.division = request.POST.get("team_division")
-            team.save()
-            logger.info("User %s changed the division for team %s from %s to %s" % (str(request.user), str(team.team_name), old_division, team.division))
-            messages.success(request, "Division successfully updated")
 
     if(team is not None):
         return render(request, "registration.html",
