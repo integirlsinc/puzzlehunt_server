@@ -21,3 +21,4 @@ debug.log
 /docker/volumes/logs/
 *.env
 .venv
+.vs

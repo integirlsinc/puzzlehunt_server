@@ -31,8 +31,8 @@
           <td>{{forloop.counter}}</td>
           <td>{{team.team_name|truncatechars:30}}</td>
           <!-- <td>{{team.metas}}</td> -->
-          <td>{{team.solves}}</td>
-          <td>{{team.last_time|date:"M dS, h:i a" }}</td>
+          {% if team.division != "open" %} <td>{{team.solves}}</td>
+          <td>{{team.last_time|date:"M dS, h:i a" }}</td> {% endif %}
         </tr>
         {% endfor %}
       </table>
