@@ -8,55 +8,51 @@
 {% block content %}
 
 <div class="container">
-  <div id='logos'>
-    <p align="center">
-        <a href="{% url 'huntserver:registration' %}"> <img id="phlogo" src='/static/huntserver/phcmulogo.png'/></a>
-    </p>
-    <p align="center"><strong>
-      {% if curr_hunt.is_locked %}
-        Our next hunt: <br>
-      {% elif curr_hunt.is_public %}
-        Our previous hunt: <br>
-      {% elif curr_hunt.is_day_of_hunt %}
-        Our current hunt: <br>
-      {% else %}
-        Our next hunt: <br>
-      {% endif %}
-    </strong></p>
-    <p align="center"><strong>
-      {{curr_hunt.hunt_name}}<br>
-      {{ curr_hunt.display_start_date|date:" m/d/y " }}  {{ curr_hunt.display_start_date|time:"h:iA" }} &ndash; {{ curr_hunt.display_end_date|date:" m/d/y "}}  {{ curr_hunt.display_end_date|time:"h:iA e" }}<br>
-      Kickoff location is {{ curr_hunt.location }}
-    </strong></p>
-    {% if not curr_hunt.is_public %}
-    <p align="center">
-      <a href="{% url 'huntserver:registration' %}">
-        <strong>
-          {% if team %}
-            View Registration
-          {% else %}
+	<div id='logos'>
+		<p align="center">
+			<a href="{% url 'huntserver:registration' %}"> <img id="phlogo" src='/static/huntserver/logo.png'/ style="width: 75%; height: 75%"></a>
+		</p>
+		<p align="center"><strong>
+		INTEGIRLS Hunt {{curr_hunt.hunt_number}} - {{curr_hunt.hunt_name}}<br>
+		{{ curr_hunt.display_start_date|date:" m/d/y " }}  {{ curr_hunt.display_start_date|time:"h:iA" }} &ndash; {{ curr_hunt.display_end_date|date:" m/d/y "}}  {{ curr_hunt.display_end_date|time:"h:iA e" }}
+		</strong></p>
+		
+		{% if not curr_hunt.is_public %}
+		<p align="center">
+		<a href="{% url 'huntserver:registration' %}">
+			<strong>
+			{% if team %}
+			View Registration
+			{% else %}
             Register Now!
-          {% endif %}
-        </strong>
-      </a>
-    </p>
-    {% endif %}
-  </div>
+			{% endif %}
+			</strong>
+		</a>
+		</p>
+		{% endif %}
+	</div>
 
-  <div id='qa'>
-    <h2>What is a puzzle hunt?</h2>
-    <p>
-      Very simply put, it's an event where people get together to solve carefully designed puzzles which somehow link together on a larger scale.
-      <br>
-      A puzzle hunt is typically characterized by its structure. In addition to several normal puzzles, each round has a meta-puzzle, which requires teams to have solved most of the normal puzzles to even unlock, and often requires solvers to incorporate answers from that round's normal puzzles to make sense of.
-      <br>
-      Our puzzle hunt's structure changes from semester to semester so as to provide new challenges for solvers.
-    </p>
-    <h2>Wait that sounds cool, can I participate?</h2>
-    <p>Yeah, check out our <a href="{% url 'huntserver:current_hunt_info' %}">current hunt page</a>!</p>
-    <h2>Wait, I have more questions!</h2>
-    <p>Email the <a href="mailto:{% contact_email %}?subject=Puzzle%20Hunt%20Question">HALP?! LINE</a> ({% contact_email %}) with "Puzzle Hunt" somewhere in the subject line.</p>
-  </div>
+	<div class="row" id="qa">
+		<div class="col">
+		<h2>What is a puzzle hunt?</h2>
+		<p>A puzzle hunt is an event where people solve a series of puzzles. Each of our puzzles has an answer that's a word or short phrase, and
+		your job is to figure out how to manipulate the puzzle to find that answer. For more information, we'd recommend watching the INTEGIRLS
+		<a href="https://www.youtube.com/watch?v=Q58qw-H6SMQ" target="_blank">Puzzle 101 Seminar</a> we recorded last summer or looking at some of
+		the puzzles from our <a href="https://puzzle-f20.integirls.org/" target="_blank">previous hunt.</p>
+		</div>
+		
+		<div class="col">
+		<h2>I want to participate!</h2>
+		<p>This hunt is open to girls and non-binary students affected by (trans)misogyny. If that applies to you, create an account or log in <a href="{% url 'huntserver:login_selection' %}">here</a>.<br>
+		We encourage people to form teams of up to 4 middle school hunters, high school hunters, or open division hunters. When you've found teammates, register or join a team <a href="{% url 'huntserver:registration' %}">here</a>.
+		We also are opening a space on our Discord server for hunters to find teammates for this hunt.</p>
+		</div>
+		
+		<div class="col">
+		<h2>I have other questions!</h2>
+		<p>Feel free to <a href="mailto:{% contact_email %}">email us</a> with other questions. If you have questions during the hunt, you will also be able to chat us through this website.</a>
+		</div></div>
 </div>
+	
 {% endblock content %}
 {% block footer %}{% endblock %}

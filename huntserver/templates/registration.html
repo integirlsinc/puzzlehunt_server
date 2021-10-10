@@ -6,7 +6,7 @@
 
 {% block content %}
   <div class="container">
-    <h1> Team Registration</h1>
+  {% if user.is_authenticated %}<h1> Team Registration</h1>{% endif %}
   {% if not user.is_authenticated %}
       <hr style="border-width:2px; border-color: black;">
       <h2>You aren't signed in!</h2>
