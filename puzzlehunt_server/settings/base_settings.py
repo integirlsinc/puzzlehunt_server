@@ -158,7 +158,7 @@ LOGGING = {
 }
 
 # Email settings
-CONTACT_EMAIL = os.getenv("CONTACT_EMAIL", default="")
+CONTACT_EMAIL = os.getenv("CONTACT_EMAIL", default="puzzle@integirls.org")
 
 EMAIL_USE_TLS = True
 
