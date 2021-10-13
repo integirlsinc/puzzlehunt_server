@@ -9,13 +9,13 @@
 
 <div class="container">
 	<div id='logos'>
-		<p align="center">
+		<div align="center">
 			<a href="{% url 'huntserver:registration' %}"> <img id="phlogo" src='/static/huntserver/logo.png'/ style="width: 75%; height: 75%"></a>
-		</p>
-		<p align="center"><strong>
+		</div>
+		<h4 align="center"><strong>
 		INTEGIRLS Puzzle Hunt {{curr_hunt.hunt_number}}: {{curr_hunt.hunt_name}}<br>
 		{{ curr_hunt.display_start_date|date:" m/d/y " }}  {{ curr_hunt.display_start_date|time:"h:iA" }} &ndash; {{ curr_hunt.display_end_date|date:" m/d/y "}}  {{ curr_hunt.display_end_date|time:"h:iA e" }}
-		</strong></p>
+		</strong></h4>
 		
 		{% if not curr_hunt.is_public %}
 		<p align="center">
@@ -36,7 +36,8 @@
 		<div class="col-md-4">
 		<h2>What is a puzzle hunt?</h2>
 		<p>A puzzle hunt is an event where people solve a series of puzzles. Each of our puzzles has an answer that's a word or short phrase, and
-		your job is to figure out how to manipulate the puzzle to find that answer. For more information, we'd recommend watching the INTEGIRLS
+		your job is to figure out how to manipulate the puzzle to find that answer.
+		<br><br>For more information, we'd recommend watching the INTEGIRLS
 		<a href="https://www.youtube.com/watch?v=Q58qw-H6SMQ" target="_blank">Puzzle 101 Seminar</a> we recorded last summer or looking at some of
 		the puzzles from our <a href="https://puzzle-f20.integirls.org/" target="_blank">previous hunt.</a></p>
 		</div>

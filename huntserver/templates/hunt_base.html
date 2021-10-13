@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% load bootstrap_tags %}
 {% load hunt_tags %}
+{% load flatpages %}
 
 {% block base_includes %}
 <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}huntserver/hunt_base.css">
@@ -8,8 +9,15 @@
 
 {% block left-header %}
   {% set_hunt_from_context %}
+   {% get_flatpages '/extra/' as flatpages %}
+  
     <li><a href="{% url 'huntserver:current_hunt_info' %}"> Hunt Info </a></li>
 	<li class='{% active_page request "leaderboard" %}'><a href="{% url 'huntserver:leaderboard' %}"> Teams </a></li>
+	{% for page in flatpages|dictsort:"url" %}
+    <li class='{% active_page request page.url %}'>
+      <a href="/info{{ page.url }}"> {{ page.title }} </a>
+    </li>
+  {% endfor %}
 	<li class='{% active_page request "current_hunt" %}'>
     <a href="{% url 'huntserver:hunt' tmpl_hunt.hunt_number %}"> Puzzles </a>
   </li>
