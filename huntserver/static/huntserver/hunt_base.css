@@ -1,5 +1,6 @@
 body {
     background: url(/static/huntserver/info_background.png);
+	background-size: 125px 125px;
 }
 
 #footer {
